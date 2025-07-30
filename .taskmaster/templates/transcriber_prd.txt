@@ -1,0 +1,64 @@
+
+Transcriber Application - Product Requirements Document (PRD)
+=============================================================
+
+1. Overview
+-----------
+The Transcriber App is a local-first tool that allows users to transcribe and summarize spoken memos in both English and Dutch. It is designed for users who need quick, reliable, and private transcription of voice notes—ideal for students, professionals, and creatives.
+
+2. Goals & Objectives
+---------------------
+- Transcribe audio memos (WAV, MP3, M4A) with high accuracy.
+- Generate summaries of transcribed content.
+- Ensure full support for English and Dutch.
+- Keep all processing local (privacy-first, no cloud/API calls).
+- Simple, distraction-free UI.
+
+3. Features
+-----------
+Core Features:
+- Audio Upload: Drag & drop or browse to upload audio files.
+- Language Detection / Selection: Detect or manually select English or Dutch.
+- Transcription Engine: Local speech-to-text (e.g., Whisper.cpp or Vosk).
+- Summarization Module: Local summarizer (e.g., fine-tuned LLM like LLaMA.cpp or local GPTQ model).
+- Export Options: Export full transcription and/or summary (TXT, DOCX, PDF).
+
+Optional / Advanced:
+- Sentence Timestamps: Display start/end timestamps per sentence.
+- Speaker Diarization: Basic speaker separation (optional).
+- Markdown Output: Export summary with markdown formatting.
+- Hotkeys: Play/pause, skip, reprocess, etc.
+
+4. User Stories
+---------------
+- As a Student, I want to upload a memo and get the summary so that I can quickly revise my class notes.
+- As a Professional, I want to transcribe a voice note in Dutch so that I can include it in my meeting minutes.
+- As a Developer, I want to use the app offline so that my data remains private and secure.
+
+5. Technical Requirements
+-------------------------
+- Platform: Desktop (macOS, Windows, Linux)
+- Language Support: English / Dutch
+- Framework: Built in Electron or Tauri (optional), UI with React/HTML
+- Transcription Engine: Whisper.cpp, Vosk, or Coqui STT for local speech-to-text
+- Summarizer: Local LLM (e.g., Ollama, GPTQ model, LLaMA.cpp)
+- Storage: Local SQLite or JSON for storing history
+- Dependencies: No external cloud APIs (local-only)
+
+6. Non-Goals
+------------
+- No mobile version (yet)
+- No live recording (only memo file input)
+- No cloud processing or syncing
+
+7. Success Criteria
+-------------------
+- Transcribes and summarizes 5-minute memos in < 1 minute on typical hardware
+- Summaries maintain >85% relevance to original content
+- Handles both English and Dutch with minimal user input
+
+8. Future Considerations
+------------------------
+- Add live recording and transcription
+- Add tagging or search for transcripts
+- Optionally integrate with Notion or Obsidian for note linking

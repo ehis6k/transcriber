@@ -1,0 +1,50 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+*.local
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Rust/Tauri specific
+src-tauri/target/
+src-tauri/Cargo.lock
+
+# Audio files (test files should not be committed)
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+
+# Generated transcription files
+transcripts/
+summaries/

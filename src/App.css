@@ -1,0 +1,80 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.app-header h1 {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  color: #646cff;
+}
+
+.app-header p {
+  font-size: 1.1rem;
+  opacity: 0.8;
+  margin: 0;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.status-message {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(100, 108, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(100, 108, 255, 0.2);
+}
+
+.upload-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-placeholder {
+  border: 2px dashed #646cff;
+  border-radius: 12px;
+  padding: 3rem;
+  text-align: center;
+  width: 100%;
+  max-width: 600px;
+  background: rgba(100, 108, 255, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.upload-placeholder:hover {
+  border-color: #747bff;
+  background: rgba(100, 108, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.upload-placeholder p {
+  margin: 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.upload-placeholder p:first-child {
+  font-weight: 600;
+  color: #646cff;
+}
+
+.upload-placeholder p:last-child {
+  opacity: 0.7;
+  font-size: 0.9rem;
+}

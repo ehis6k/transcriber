@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  const [message, setMessage] = useState("Welcome to Transcriber");
+  const [message] = useState("Welcome to Transcriber");
 
   return (
     <div className="app">

@@ -1,5 +1,5 @@
 /**
- * Audio file processing types and interfaces for the Transcriber app
+ * Audio file model and related types
  */
 
 export type SupportedAudioFormat = 'wav' | 'mp3' | 'm4a' | 'flac' | 'ogg';
@@ -13,12 +13,27 @@ export type SummarizationStatus = 'pending' | 'processing' | 'completed' | 'erro
 export interface AudioFile {
   id: string;
   name: string;
-  path: string;
+  path: string; // URL or file path
+  file?: File; // Actual File object for transcription
   size: number;
   duration?: number;
   format: SupportedAudioFormat;
   uploadedAt: Date;
   lastModified: Date;
+}
+
+export interface AudioMetadata {
+  duration?: number;
+  sampleRate?: number;
+  channels?: number;
+  bitrate?: number;
+}
+
+export interface AudioProcessingOptions {
+  quality?: 'low' | 'medium' | 'high';
+  format?: 'mp3' | 'wav' | 'ogg' | 'm4a';
+  sampleRate?: number;
+  channels?: number;
 }
 
 export interface TranscriptionResult {

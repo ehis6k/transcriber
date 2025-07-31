@@ -24,13 +24,59 @@
       },
       "fs": {
         "all": true,
-        "scope": ["$DESKTOP/*", "$DOCUMENT/*", "$DOWNLOAD/*"]
+        "scope": [
+          "$DESKTOP/*",
+          "$DOCUMENT/*",
+          "$DOWNLOAD/*",
+          "$AUDIO/*",
+          "$HOME/Desktop/*",
+          "$HOME/Documents/*",
+          "$HOME/Downloads/*"
+        ]
+      },
+      "os": {
+        "all": true
+      },
+      "path": {
+        "all": true
       }
     },
     "bundle": {
-      "active": false,
+      "active": true,
       "targets": "all",
-      "identifier": "com.transcriber.app"
+      "identifier": "com.transcriber.app",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "resources": [],
+      "externalBin": [],
+      "copyright": "© 2024 Transcriber",
+      "category": "AudioVideo",
+      "shortDescription": "Local audio transcription and summarization",
+      "longDescription": "A local-first desktop application for transcribing and summarizing audio memos with privacy in mind.",
+      "macOS": {
+        "frameworks": [],
+        "minimumSystemVersion": "10.13",
+        "exceptionDomain": "",
+        "signingIdentity": null,
+        "providerShortName": null,
+        "entitlements": null
+      },
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": ""
+      },
+      "deb": {
+        "depends": ["libwebkit2gtk-4.0-37"]
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      }
     },
     "security": {
       "csp": null
@@ -43,7 +89,12 @@
         "width": 1000,
         "height": 700,
         "minWidth": 800,
-        "minHeight": 600
+        "minHeight": 600,
+        "center": true,
+        "decorations": true,
+        "alwaysOnTop": false,
+        "skipTaskbar": false,
+        "fileDropEnabled": true
       }
     ]
   }

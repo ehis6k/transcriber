@@ -2,7 +2,7 @@
  * Audio file uploader component
  */
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useRef } from 'react';
 import { useAudioUpload } from '@/hooks';
 import { SUPPORTED_AUDIO_FORMATS } from '@/utils';
 import type { AudioFile } from '@/models';
@@ -15,6 +15,7 @@ interface AudioUploaderProps {
 export function AudioUploader({ onFilesUploaded, disabled = false }: AudioUploaderProps) {
   const { uploadFiles, uploadProgress, isUploading, clearProgress } = useAudioUpload();
   const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback(
     async (files: File[]) => {
@@ -53,7 +54,7 @@ export function AudioUploader({ onFilesUploaded, disabled = false }: AudioUpload
     [handleFiles]
   );
 
-  const handleDragOver = useCallback(
+  const handleDragEnter = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       if (!disabled) {
@@ -63,9 +64,19 @@ export function AudioUploader({ onFilesUploaded, disabled = false }: AudioUpload
     [disabled]
   );
 
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  }, []);
+
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    setIsDragOver(false);
+    // Only set drag over to false if we're leaving the upload area itself
+    if (e.currentTarget === e.target) {
+      setIsDragOver(false);
+    }
   }, []);
 
   return (
@@ -73,17 +84,23 @@ export function AudioUploader({ onFilesUploaded, disabled = false }: AudioUpload
       <div
         className={`upload-area ${isDragOver ? 'drag-over' : ''} ${disabled ? 'disabled' : ''}`}
         onDrop={handleDrop}
+        onDragEnter={handleDragEnter}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
         <div className="upload-content">
-          <h3>Upload Audio Files</h3>
-          <p>Drop audio files here or click to browse</p>
+          <h3>{isDragOver ? '📁 Drop files here!' : 'Upload Audio Files'}</h3>
+          <p>
+            {isDragOver
+              ? 'Release to upload your audio files'
+              : 'Drop audio files here or click to browse'}
+          </p>
           <p className="supported-formats">
             Supported formats: {SUPPORTED_AUDIO_FORMATS.join(', ').toUpperCase()}
           </p>
 
           <input
+            ref={fileInputRef}
             type="file"
             multiple
             accept={SUPPORTED_AUDIO_FORMATS.map(f => `.${f}`).join(',')}
@@ -95,7 +112,7 @@ export function AudioUploader({ onFilesUploaded, disabled = false }: AudioUpload
           <button
             className="browse-button"
             disabled={disabled || isUploading}
-            onClick={() => document.querySelector<HTMLInputElement>('.file-input')?.click()}
+            onClick={() => fileInputRef.current?.click()}
           >
             {isUploading ? 'Uploading...' : 'Browse Files'}
           </button>
@@ -115,6 +132,7 @@ export function AudioUploader({ onFilesUploaded, disabled = false }: AudioUpload
                 <div className="progress-fill" style={{ width: `${progress.progress}%` }} />
               </div>
               {progress.error && <div className="error-message">{progress.error}</div>}
+              {progress.warnings && <div className="warning-message">{progress.warnings}</div>}
             </div>
           ))}
           <button onClick={clearProgress} className="clear-button">

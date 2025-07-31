@@ -4,7 +4,7 @@
 
 import { useState, useCallback } from 'react';
 import type { AudioFile, FileUploadProgress } from '@/models';
-import { validateAudioFile, getAudioFormat } from '@/utils';
+import { validateAudioFile, getAudioFormat, extractAudioMetadata } from '@/utils';
 
 interface UseAudioUploadReturn {
   uploadProgress: FileUploadProgress[];
@@ -38,11 +38,18 @@ export function useAudioUpload(): UseAudioUploadReturn {
         try {
           // Validate file
           const validation = validateAudioFile(file);
+
           if (!validation.isValid) {
             setUploadProgress(prev =>
               prev.map(p =>
                 p.fileId === fileId
-                  ? { ...p, status: 'error', error: validation.errors.join(', ') }
+                  ? {
+                      ...p,
+                      status: 'error',
+                      error: validation.errors.join('\n'),
+                      warnings:
+                        validation.warnings.length > 0 ? validation.warnings.join('\n') : undefined,
+                    }
                   : p
               )
             );
@@ -51,18 +58,40 @@ export function useAudioUpload(): UseAudioUploadReturn {
 
           // Update progress - validating
           setUploadProgress(prev =>
-            prev.map(p => (p.fileId === fileId ? { ...p, progress: 25, status: 'validating' } : p))
+            prev.map(p =>
+              p.fileId === fileId
+                ? {
+                    ...p,
+                    progress: 25,
+                    status: 'validating',
+                    warnings:
+                      validation.warnings.length > 0 ? validation.warnings.join('\n') : undefined,
+                  }
+                : p
+            )
           );
 
-          // TODO: Actual file processing/copying to app directory
-          // For now, we'll simulate the upload process
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Extract audio metadata
+          setUploadProgress(prev =>
+            prev.map(p => (p.fileId === fileId ? { ...p, progress: 50, status: 'validating' } : p))
+          );
+
+          const metadata = await extractAudioMetadata(file);
+
+          setUploadProgress(prev =>
+            prev.map(p => (p.fileId === fileId ? { ...p, progress: 75, status: 'validating' } : p))
+          );
+
+          // Create blob URL for local file access
+          const blobUrl = URL.createObjectURL(file);
 
           const audioFile: AudioFile = {
             id: fileId,
             name: file.name,
-            path: file.name, // TODO: Use actual file path
+            path: blobUrl, // Use blob URL for local access
+            file: file, // Store the actual File object for transcription
             size: file.size,
+            ...(metadata.duration && { duration: metadata.duration }),
             format: getAudioFormat(file)!,
             uploadedAt: new Date(),
             lastModified: new Date(file.lastModified),

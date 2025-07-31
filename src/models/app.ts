@@ -49,7 +49,8 @@ export interface FileUploadProgress {
   fileName: string;
   progress: number;
   status: 'uploading' | 'validating' | 'completed' | 'error';
-  error?: string;
+  error?: string | undefined;
+  warnings?: string | undefined;
 }
 
 export interface ProcessingProgress {

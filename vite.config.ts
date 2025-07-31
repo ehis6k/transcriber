@@ -4,7 +4,12 @@ import { resolve } from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Fast refresh for better development experience
+      fastRefresh: true,
+    }),
+  ],
 
   // Path aliases for cleaner imports
   resolve: {
@@ -16,20 +21,55 @@ export default defineConfig(async () => ({
       '@/models': resolve(__dirname, './src/models'),
       '@/hooks': resolve(__dirname, './src/hooks'),
       '@/assets': resolve(__dirname, './src/assets'),
+      '@/config': resolve(__dirname, './src/config'),
     },
   },
 
-  // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
-  //
-  // 1. prevent vite from obscuring rust errors
-  clearScreen: false,
-  // 2. tauri expects a fixed port, fail if that port is not available
+  // Environment variables
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+    __DEV__: JSON.stringify(process.env.NODE_ENV === 'development'),
+  },
+
+  // Development server configuration
   server: {
     port: 1420,
     strictPort: true,
+    host: true, // Allow external connections for testing
+    open: false, // Don't auto-open browser (Tauri handles this)
     watch: {
-      // 3. tell vite to ignore watching `src-tauri`
       ignored: ['**/src-tauri/**'],
     },
+    // Enable HMR
+    hmr: {
+      port: 1421,
+    },
   },
+
+  // Build configuration for production
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    sourcemap: false, // Disable for production builds
+    rollupOptions: {
+      output: {
+        // Better chunk splitting for smaller bundles
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          tauri: ['@tauri-apps/api'],
+        },
+      },
+    },
+    // Asset optimization
+    assetsInlineLimit: 4096, // 4kb
+  },
+
+  // Optimize dependencies for faster dev server startup
+  optimizeDeps: {
+    include: ['react', 'react-dom', '@tauri-apps/api'],
+  },
+
+  // Vite options tailored for Tauri development
+  clearScreen: false,
 }));
+

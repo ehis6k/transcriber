@@ -3,6 +3,7 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -23,7 +24,8 @@
       "@/utils/*": ["src/utils/*"],
       "@/models/*": ["src/models/*"],
       "@/hooks/*": ["src/hooks/*"],
-      "@/assets/*": ["src/assets/*"]
+      "@/assets/*": ["src/assets/*"],
+      "@/config/*": ["src/config/*"]
     },
 
     /* Strict Type Checking */

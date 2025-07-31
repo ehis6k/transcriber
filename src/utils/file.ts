@@ -3,8 +3,9 @@
  */
 
 import type { SupportedAudioFormat } from '@/models';
+import { DEV_CONFIG } from '@/config/development';
 
-export const SUPPORTED_AUDIO_FORMATS: SupportedAudioFormat[] = ['wav', 'mp3', 'm4a', 'flac', 'ogg'];
+export const SUPPORTED_AUDIO_FORMATS = DEV_CONFIG.SUPPORTED_FORMATS;
 
 export const SUPPORTED_MIME_TYPES = [
   'audio/wav',
@@ -81,31 +82,78 @@ export function formatDuration(seconds: number): string {
 export interface AudioFileValidation {
   isValid: boolean;
   errors: string[];
+  warnings: string[];
+  fileInfo: {
+    name: string;
+    size: string;
+    type: string;
+    format?: SupportedAudioFormat | undefined;
+  };
 }
 
 export function validateAudioFile(file: File): AudioFileValidation {
   const errors: string[] = [];
+  const warnings: string[] = [];
+  const format = getAudioFormat(file);
 
+  // File format validation
   if (!isSupportedAudioFile(file)) {
+    const detectedExtension = getFileExtension(file.name);
     errors.push(
-      `Unsupported file format. Supported formats: ${SUPPORTED_AUDIO_FORMATS.join(', ')}`
+      `❌ "${file.name}" has unsupported format (.${detectedExtension}). Please use: ${SUPPORTED_AUDIO_FORMATS.map(f => f.toUpperCase()).join(', ')}`
     );
   }
 
-  // Check file size (max 100MB)
-  const maxSize = 100 * 1024 * 1024; // 100MB
+  // File size validation
+  const maxSize = DEV_CONFIG.MAX_FILE_SIZE_MB * 1024 * 1024;
+  const warningSize = maxSize * 0.8; // Warn at 80% of max size
+  const minSize = 1024; // 1KB
+
   if (file.size > maxSize) {
-    errors.push(`File too large. Maximum size is ${formatFileSize(maxSize)}`);
+    errors.push(
+      `📁 "${file.name}" is too large (${formatFileSize(file.size)}). Maximum allowed: ${formatFileSize(maxSize)}`
+    );
+  } else if (file.size > warningSize) {
+    warnings.push(
+      `⚠️ Large file detected (${formatFileSize(file.size)}). Processing may take longer than usual.`
+    );
   }
 
-  // Check minimum file size (1KB)
-  const minSize = 1024; // 1KB
   if (file.size < minSize) {
-    errors.push(`File too small. Minimum size is ${formatFileSize(minSize)}`);
+    errors.push(
+      `📁 "${file.name}" is too small (${formatFileSize(file.size)}). Minimum size: ${formatFileSize(minSize)}`
+    );
+  }
+
+  // Empty file check
+  if (file.size === 0) {
+    errors.push(`❌ "${file.name}" appears to be empty or corrupted.`);
+  }
+
+  // MIME type validation for additional security
+  if (
+    file.type &&
+    !SUPPORTED_MIME_TYPES.includes(file.type.toLowerCase() as (typeof SUPPORTED_MIME_TYPES)[number])
+  ) {
+    warnings.push(
+      `🔍 "${file.name}" has unexpected MIME type (${file.type}). Proceeding based on file extension.`
+    );
+  }
+
+  // File name validation
+  if (file.name.length > 255) {
+    warnings.push(`📝 "${file.name}" has a very long filename. Consider shortening it.`);
   }
 
   return {
     isValid: errors.length === 0,
     errors,
+    warnings,
+    fileInfo: {
+      name: file.name,
+      size: formatFileSize(file.size),
+      type: file.type || 'unknown',
+      format: format || undefined,
+    },
   };
 }

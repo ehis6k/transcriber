@@ -1,16 +1,33 @@
-import { useState, useCallback } from 'react';
-import { AudioUploader } from '@/components';
-import { SUPPORTED_AUDIO_FORMATS } from '@/utils';
+import { useCallback, useEffect, useState } from 'react';
+import { AudioUploader, AudioPlayer, Navigation, HistoryView } from '@/components';
+import { SUPPORTED_AUDIO_FORMATS, initializePlatform } from '@/utils';
+import { AudioFilesProvider, useAudioFiles } from '@/contexts';
 import type { AudioFile } from '@/models';
 import './App.css';
 
-function App() {
-  const [message] = useState('Welcome to Transcriber');
-  const [uploadedFiles, setUploadedFiles] = useState<AudioFile[]>([]);
+function AppContent() {
+  const { state, addFiles, removeFile, clearFiles } = useAudioFiles();
+  const { files: uploadedFiles } = state;
+  const [currentView, setCurrentView] = useState<'transcription' | 'history'>('transcription');
+  const message = 'Welcome to Transcriber';
 
-  const handleFilesUploaded = useCallback((files: AudioFile[]) => {
-    setUploadedFiles(prev => [...prev, ...files]);
+  // Initialize platform detection on app start
+  useEffect(() => {
+    initializePlatform()
+      .then(platformInfo => {
+        console.log('Platform initialized:', platformInfo);
+      })
+      .catch(error => {
+        console.warn('Failed to initialize platform:', error);
+      });
   }, []);
+
+  const handleFilesUploaded = useCallback(
+    (files: AudioFile[]) => {
+      addFiles(files);
+    },
+    [addFiles]
+  );
 
   return (
     <div className="app">
@@ -23,27 +40,49 @@ function App() {
       </header>
 
       <main className="app-main">
-        <div className="status-message">
-          <p>{message}</p>
-          {uploadedFiles.length > 0 && <p>{uploadedFiles.length} file(s) ready for processing</p>}
-        </div>
+        <Navigation 
+          currentView={currentView} 
+          onViewChange={setCurrentView} 
+        />
 
-        <AudioUploader onFilesUploaded={handleFilesUploaded} />
+        {currentView === 'transcription' ? (
+          <>
+            <div className="status-message">
+              <p>{message}</p>
+              {uploadedFiles.length > 0 && <p>{uploadedFiles.length} file(s) ready for processing</p>}
+            </div>
 
-        {uploadedFiles.length > 0 && (
-          <div className="uploaded-files">
-            <h3>Uploaded Files</h3>
-            <ul>
-              {uploadedFiles.map(file => (
-                <li key={file.id}>
-                  <strong>{file.name}</strong> - {file.format.toUpperCase()}
-                </li>
-              ))}
-            </ul>
-          </div>
+            <AudioUploader onFilesUploaded={handleFilesUploaded} />
+
+            {uploadedFiles.length > 0 && (
+              <div className="uploaded-files">
+                <div className="uploaded-files-header">
+                  <h3>Audio Files ({uploadedFiles.length})</h3>
+                  <button className="clear-all-button" onClick={clearFiles} title="Clear all files">
+                    🗑️ Clear All
+                  </button>
+                </div>
+                <div className="audio-files-list">
+                  {uploadedFiles.map(file => (
+                    <AudioPlayer key={file.id} audioFile={file} onRemove={removeFile} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : (
+          <HistoryView />
         )}
       </main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AudioFilesProvider>
+      <AppContent />
+    </AudioFilesProvider>
   );
 }
 
